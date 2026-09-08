@@ -38,6 +38,7 @@ Environment:
   ATLASCLOUD_DEFAULT_MODEL   Preferred default Atlas Cloud model (optional)
   IMAGE_PROVIDER             gemini, openai, or atlas — provider used when --model is omitted
   GEMINI_REQUEST_TIMEOUT_MS  Request timeout in milliseconds (optional)
+  IMAGE_OUTPUT_DIR           Default output directory (overridden by --output-dir)
   MEDIA_PIPELINE_LOG_LEVEL   Logging level for stderr diagnostics (optional)
 
 Examples:
@@ -60,7 +61,7 @@ async function main() {
                 mask: { type: "string" },
                 background: { type: "string", short: "b" },
                 "output-format": { type: "string", short: "f" },
-                "output-dir": { type: "string", short: "d", default: process.cwd() },
+                "output-dir": { type: "string", short: "d" },
                 "timeout-ms": { type: "string", short: "t" },
                 "log-level": { type: "string", short: "l" },
                 help: { type: "boolean", short: "h", default: false },
@@ -97,7 +98,9 @@ async function main() {
         }
         const runtimeConfig = createRuntimeConfig({
             ...process.env,
-            IMAGE_OUTPUT_DIR: values["output-dir"] || process.env.IMAGE_OUTPUT_DIR,
+            IMAGE_OUTPUT_DIR: values["output-dir"] ??
+                process.env.IMAGE_OUTPUT_DIR ??
+                process.cwd(),
             GEMINI_REQUEST_TIMEOUT_MS: values["timeout-ms"] ||
                 process.env.GEMINI_REQUEST_TIMEOUT_MS,
             MEDIA_PIPELINE_LOG_LEVEL: values["log-level"] ||
